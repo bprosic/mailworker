@@ -57,7 +57,9 @@ app.use(cors(corsOptions));
 // init middleware from body - to take from body parser
 app.use(express.json({ extended: false }));
 app.get('/', (req, res) => {
-  res.status(200).send('sve ok');
+  setTimeout(() => {
+    res.status(200).send('sve ok');
+  }, 2000);
 });
 // receive online form object and send it to email
 app.post('/creolic/online-form', (req, res) => {
