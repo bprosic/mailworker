@@ -2,10 +2,10 @@
   "name": "mailworker",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "mail_worker_server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon -r dotenv/config server.js dotenv_config_path=./.env"
+    "dev": "nodemon -r dotenv/config mail_worker_server.js dotenv_config_path=./.env"
   },
   "author": "bprosic",
   "license": "ISC",

@@ -10,6 +10,7 @@ const express = require('express'),
     process.env.CREOLIC_BACKEND_LOCAL_ENDPOINT_1,
   CREOLIC_BACKEND_LOCAL_ENDPOINT_2 =
     process.env.CREOLIC_BACKEND_LOCAL_ENDPOINT_2,
+  routes = require('./routes'),
   https = require('https'),
   fs = require('fs'),
   uuid = require('uuid-v4'),
@@ -56,16 +57,8 @@ const corsOptions = {
 app.use(cors(corsOptions));
 // init middleware from body - to take from body parser
 app.use(express.json({ extended: false }));
-app.get('/', (req, res) => {
-  setTimeout(() => {
-    res.status(200).send('sve ok');
-  }, 2000);
-});
-// receive online form object and send it to email
-app.post('/creolic/online-form', (req, res) => {
-  res.status(200).send('sve ok');
-  //   res.send('sve ok');
-});
+
+app.use('/', routes);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
