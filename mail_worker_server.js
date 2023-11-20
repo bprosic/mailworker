@@ -6,6 +6,7 @@ const express = require('express'),
   CREOLIC_FRONTEND_DNS_ENDPOINT = process.env.CREOLIC_FRONTEND_DNS_ENDPOINT,
   CREOLIC_FRONTEND_LOCAL_ENDPOINT = process.env.CREOLIC_FRONTEND_LOCAL_ENDPOINT,
   CREOLIC_FRONTEND_IP_ENDPOINT = process.env.CREOLIC_FRONTEND_IP_ENDPOINT,
+  CREOLIC_FRONTEND_IP_ENDPOINT2 = process.env.CREOLIC_FRONTEND_IP_ENDPOINT2,
   CREOLIC_BACKEND_LOCAL_ENDPOINT_1 =
     process.env.CREOLIC_BACKEND_LOCAL_ENDPOINT_1,
   CREOLIC_BACKEND_LOCAL_ENDPOINT_2 =
@@ -31,9 +32,10 @@ app.use(function (req, res, next) {
 });
 
 const allowedOrigins = [
-  `${CREOLIC_FRONTEND_DNS_ENDPOINT}`, // frontend
-  `${CREOLIC_FRONTEND_LOCAL_ENDPOINT}`, // frontend
-  `${CREOLIC_FRONTEND_IP_ENDPOINT}`, // frontend
+  `${CREOLIC_FRONTEND_DNS_ENDPOINT}`, // frontend prosic.th-deg.de
+  `${CREOLIC_FRONTEND_LOCAL_ENDPOINT}`, // frontend localhost
+  `${CREOLIC_FRONTEND_IP_ENDPOINT}`, // frontend 0.0.0.0
+  `${CREOLIC_FRONTEND_IP_ENDPOINT2}`, // frontend 192.168.162.184
   `${CREOLIC_BACKEND_LOCAL_ENDPOINT_1}`, // backend #9
   `${CREOLIC_BACKEND_LOCAL_ENDPOINT_2}`, // backend #9
 ]; // you have to include both server and client
