@@ -1,7 +1,9 @@
 const express = require('express'),
   router = express.Router(),
   { validateFormData } = require('./FormFunctions/validateFormData'),
-  { randomBytes } = require('crypto');
+  { randomBytes } = require('crypto'),
+  MailFunctions = require('./MailFunctions/sendMail'),
+  { sendMail } = MailFunctions;
 
 // express routes, - and . are interpreted literally
 router.get('/is_server_online', (req, res) => {
@@ -24,6 +26,11 @@ router.get('/session_destroy', (req, res) => {
   res.status(200).send({ code: 200, msg: 'session destroyed' });
 });
 
+router.post('/send_mail', async (req, res) => {
+  let formData = req.body;
+  sendMail(formData);
+});
+
 router.post('/online_form', async (req, res) => {
   let formData = req.body; // { name: '', email: '', phone: '', message: '' }
 
@@ -36,11 +43,14 @@ router.post('/online_form', async (req, res) => {
   delete formData['token'];
 
   let isFormValid = await validateFormData(formData);
+
   if (!isFormValid.valid) {
     res
       .status(200)
       .send({ code: 404, msg: 'Form not valid', detail: isFormValid.error });
   } else {
+    sendMail(formData);
+
     res.status(200).send({ code: 200, msg: 'Form valid', details: formData });
   }
 });

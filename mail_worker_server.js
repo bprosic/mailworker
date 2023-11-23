@@ -35,8 +35,8 @@ app.use(
       path: '/',
       sameSite: 'none',
       httpOnly: true,
-      // maxAge: 24 * 60 * 60 * 1000, // 24hours
-      maxAge: 3000, // 3 seconds
+      maxAge: 24 * 60 * 60 * 1000, // 24hours
+      // maxAge: 3000, // 3 seconds
       // maxAge: 24 * 60 * 60 * 1000 * 7, // 7 days
       secret: process.env.CSRF_SECRET,
     },
@@ -52,15 +52,6 @@ app.use(bodyParser.json()); // csrf
 app.use(cookieParser()); // csrf
 //https://levelup.gitconnected.com/how-to-implement-csrf-tokens-in-express-f867c9e95af0
 // set up the cookie for the session
-
-const attachCsrfToken = (req, res, next) => {
-  console.log('req.session', req.session);
-  if (req.session.csrf === undefined) {
-    console.log('usao u req.session.csrf');
-    req.session.csrf = randomBytes(100).toString('base64');
-  }
-  next();
-};
 
 // #9
 app.use(function (req, res, next) {
