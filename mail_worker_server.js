@@ -15,6 +15,7 @@ const express = require('express'),
   CREOLIC_BACKEND_LOCAL_ENDPOINT_3 =
     process.env.CREOLIC_BACKEND_LOCAL_ENDPOINT_3,
   routes = require('./routes'),
+  path = require('path'),
   https = require('https'),
   fs = require('fs'),
   helmet = require('helmet'),
@@ -90,6 +91,8 @@ const corsOptions = {
 app.use(cors(corsOptions));
 // init middleware from body - to take from body parser
 app.use(express.json({ extended: false }));
+// in order to access public folder
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 

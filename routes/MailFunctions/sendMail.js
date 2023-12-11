@@ -20,17 +20,6 @@ const sendMail = (obj) => {
 
   // https://www.freecodecamp.org/news/use-nodemailer-to-send-emails-from-your-node-js-server/
 
-  // let transporter = nodemailer.createTransport({
-  //   service: 'gmail',
-  //   auth: {
-  //     type: 'OAuth2',
-  //     user: process.env.MAIL_USERNAME,
-  //     pass: process.env.MAIL_PASSWORD,
-  //     clientId: process.env.OAUTH_CLIENTID,
-  //     clientSecret: process.env.OAUTH_CLIENT_SECRET,
-  //     refreshToken: process.env.OAUTH_REFRESH_TOKEN
-  //   }
-  // });
   try {
     const transporter = nodemailer.createTransport({
       host: process.env.MAIL_HOST,
@@ -45,15 +34,32 @@ const sendMail = (obj) => {
       theme: 'default',
       product: {
         name: 'Creolic',
-        link: 'https://creolic.com/',
+        link: process.env.CREOLIC_FRONTEND_DNS_ENDPOINT,
+        logo: `${process.env.CREOLIC_FRONTEND_DNS_ENDPOINT}/static/images/only_logo_red_48.png`,
       },
     });
     const emailStructure = {
       body: {
         name: name,
-        intro: 'thank you for your question',
-        outro:
-          "Need help, or have questions? Just reply to this email, we'd love to help.",
+        intro: [
+          'Thank you once again for choosing Creolic for your IT needs.',
+          'Please be assured that your request is important to us, and we will be working diligently to address your IT concerns promptly. If you have any additional details or specific preferences, feel free to let us know so that we can tailor our services to meet your expectations.',
+          'We look forward to serving you and contributing to the success of your business.',
+
+          'Request details:',
+          '---',
+        ],
+
+        dictionary: {
+          name: name,
+          email: email,
+          phone: `+${phone}`,
+          message: message,
+        },
+        outro: [
+          '---',
+          'We commit to providing a response within one business day.',
+        ],
       },
     };
 
