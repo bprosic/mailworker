@@ -12,6 +12,7 @@ const express = require('express'),
     process.env.CREOLIC_BACKEND_LOCAL_ENDPOINT_1,
   CREOLIC_BACKEND_LOCAL_ENDPOINT_2 =
     process.env.CREOLIC_BACKEND_LOCAL_ENDPOINT_2,
+  CREOLIC_BACKEND_DNS_ENDPOINT = process.env.CREOLIC_BACKEND_DNS_ENDPOINT,
   CREOLIC_BACKEND_LOCAL_ENDPOINT_3 =
     process.env.CREOLIC_BACKEND_LOCAL_ENDPOINT_3,
   routes = require('./routes'),
@@ -69,6 +70,7 @@ const allowedOrigins = [
   `${'http://192.168.162.184:8000/'}`, // frontend 192.168.162.184
   `${CREOLIC_BACKEND_LOCAL_ENDPOINT_1}`, // backend #9
   `${CREOLIC_BACKEND_LOCAL_ENDPOINT_2}`, // backend #9
+  `${CREOLIC_BACKEND_DNS_ENDPOINT}`, // backend #10
   `${CREOLIC_BACKEND_LOCAL_ENDPOINT_3}`, // backend #9 // delete this for production
 ]; // you have to include both server and client
 const corsOptions = {

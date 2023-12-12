@@ -35,7 +35,6 @@ const sendMail = (obj) => {
       product: {
         name: 'Creolic',
         link: process.env.CREOLIC_FRONTEND_DNS_ENDPOINT,
-        logo: `${process.env.CREOLIC_FRONTEND_DNS_ENDPOINT}/static/images/only_logo_red_48.png`,
       },
     });
     const emailStructure = {
