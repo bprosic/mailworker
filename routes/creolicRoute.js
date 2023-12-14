@@ -3,7 +3,8 @@ const express = require('express'),
   { validateFormData } = require('./FormFunctions/validateFormData'),
   { randomBytes } = require('crypto'),
   MailFunctions = require('./MailFunctions/sendMail'),
-  { sendMail } = MailFunctions;
+  { sendMail } = MailFunctions,
+  rateLimitMiddleware = require('../middlewares/RateLimitFunctions');
 
 // express routes, - and . are interpreted literally
 router.get('/is_server_online', (req, res) => {
@@ -26,7 +27,7 @@ router.get('/session_destroy', (req, res) => {
   res.status(200).send({ code: 200, msg: 'session destroyed' });
 });
 
-router.post('/send_mail', async (req, res) => {
+router.post('/send_mail', rateLimitMiddleware, async (req, res) => {
   let formData = req.body;
   sendMail(formData);
 });

@@ -33,7 +33,7 @@ app.use(
     saveUninitialized: false, // don't create session until something stored
     name: 'creolic_session',
     cookie: {
-      secure: false,
+      secure: false, // change this to true if using https
       path: '/',
       sameSite: 'none',
       httpOnly: true,
@@ -73,6 +73,7 @@ const allowedOrigins = [
   `${CREOLIC_BACKEND_DNS_ENDPOINT}`, // backend #10
   `${CREOLIC_BACKEND_LOCAL_ENDPOINT_3}`, // backend #9 // delete this for production
 ]; // you have to include both server and client
+
 const corsOptions = {
   origin: (origin, cb) => {
     /* IF using this and if you want to run route from server directly, then origin would be always undefined.
