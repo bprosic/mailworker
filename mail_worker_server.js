@@ -83,7 +83,7 @@ const corsOptions = {
     if (allowedOrigins.indexOf(origin) !== -1) {
       cb(null, true);
     } else {
-      console.log('origin: ', origin);
+      console.log('Not allowed next origin: ', origin);
       cb(new Error('Get back! Not allowed by CORS.'));
     }
   },
