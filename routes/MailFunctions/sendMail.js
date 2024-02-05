@@ -1,14 +1,47 @@
 const nodemailer = require('nodemailer'),
-  Mailgen = require('mailgen');
+  Mailgen = require('mailgen'),
+  ClientsList = require('../clientsList');
 
-const sendMail = (obj) => {
-  if (obj === undefined || obj === null) {
+const sendMail = (formDataObj, client, res) => {
+  if (formDataObj === undefined || formDataObj === null) {
     console.log('no form data to validate, obj is null.');
-    return;
+    return false;
+    // obj { name: '', email: '', phone: '', message: '' }
   }
-  // obj { name: '', email: '', phone: '', message: '' }
+  if (!client) {
+    console.log('no client name, client string is null.');
+    return false;
+  }
+  if (!ClientsList[client]) {
+    console.log(
+      `No client name found in clientList.js dictionary. Keyword search was: '${client}', but no data found in dictionary.`
+    );
+    return false;
+  }
+  console.log('tu sam');
+  console.log('Clients', ClientsList);
+  console.log(ClientsList[client].mailSettings.intro);
+  res.status(200).send('ok');
+  const {
+      mailSettings,
+      name: CompanyName,
+      websiteUrl: CompanyWebsite,
+      email1: CompanyEmail1,
+      email2: CompanyEmail2,
+    } = ClientsList[client],
+    {
+      host: emailHost,
+      port: emailPort,
+      username: emailUsername,
+      psw: emailPsw,
+      introMailMessage,
+      outroMailMessage,
+      subject: emailSubject,
+    } = mailSettings;
+  console.log(ddd);
+  return;
 
-  let { name, email, phone, message } = obj;
+  let { name, email, phone, message } = formDataObj;
   name = name.trim();
   email = email.trim();
   message = message.trim();
@@ -22,11 +55,11 @@ const sendMail = (obj) => {
 
   try {
     const transporter = nodemailer.createTransport({
-      host: process.env.MAIL_HOST,
-      port: process.env.MAIL_PORT,
+      host: process.env.CREOLIC_MAIL_HOST,
+      port: process.env.CREOLIC_MAIL_PORT,
       auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PSW,
+        user: process.env.CREOLIC_MAIL_USER,
+        pass: process.env.CREOLIC_MAIL_PSW,
       },
     });
     // generate email body using Mailgen
@@ -48,7 +81,7 @@ const sendMail = (obj) => {
           'Request details:',
           '---',
         ],
-
+        // gathered information from form
         dictionary: {
           name: name,
           email: email,
@@ -65,9 +98,9 @@ const sendMail = (obj) => {
     const emailBody = MailGenerator.generate(emailStructure);
     // send mail with defined transport object
     const mailOptions = {
-      from: email,
-      to: 'no-reply@creolic.com',
-      subject: 'Creolic Online inquiry',
+      from: email, // use email from form
+      to: 'no-reply@creolic.com', // to creolic or to nhfm
+      subject: 'Creolic Online inquiry', // subject
       html: emailBody,
     };
 

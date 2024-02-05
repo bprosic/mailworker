@@ -5,11 +5,6 @@ const express = require('express'),
   MailFunctions = require('./MailFunctions/sendMail'),
   { sendMail } = MailFunctions;
 
-// express routes, - and . are interpreted literally
-router.get('/is_server_online', (req, res) => {
-  res.status(200).send({ code: 200, msg: 'ok' });
-});
-
 router.post('/check_status', (req, res) => {
   if (req.session.csrf === undefined) {
     req.session.csrf = randomBytes(100).toString('base64');
@@ -28,20 +23,7 @@ router.get('/session_destroy', (req, res) => {
 
 router.post('/send_mail', async (req, res) => {
   let formData = req.body;
-  sendMail(formData);
-});
-
-router.get('/test', async (req, res) => {
-  let a = sendMail(
-    { name: 'ff', email: 'dd@th-deg.de', message: 'ded' },
-    'creolic1',
-    res
-  );
-  if (!a) {
-    return res
-      .status(500)
-      .send({ code: 500, msg: 'Email not sent, error', detail: null });
-  }
+  sendMail(formData, 'nhfm');
 });
 
 router.post('/online_form', async (req, res) => {
