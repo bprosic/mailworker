@@ -1,3 +1,4 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 const express = require('express'),
   router = express.Router(),
   { validateFormData } = require('./FormFunctions/validateFormData'),
@@ -26,6 +27,7 @@ router.post('/check_status', (req, res) => {
 
 router.get('/session_destroy', (req, res) => {
   if (req.session) {
+    console.log('session destroyed');
     req.session.destroy();
   }
 
@@ -33,21 +35,20 @@ router.get('/session_destroy', (req, res) => {
 });
 
 router.post('/send_mail', async (req, res) => {
+  // delete this
   let formData = req.body;
   sendMail(formData);
 });
 
 router.get('/test', async (req, res) => {
-  let a = sendMail(
-    { name: 'ff', email: 'dd@th-deg.de', message: 'ded' },
-    'creolic1',
-    res
-  );
-  if (!a) {
-    return res
-      .status(500)
-      .send({ code: 500, msg: 'Email not sent, error', detail: null });
-  }
+  // delete this
+  const formData = req.body;
+  sendMail(formData, 'creolic', res);
+});
+router.post('/test', rateLimitMiddleware, async (req, res) => {
+  // delete this
+  const formData = req.body;
+  sendMail(formData, 'creolic', res);
 });
 
 router.post('/online_form', rateLimitMiddleware, async (req, res) => {
@@ -56,7 +57,9 @@ router.post('/online_form', rateLimitMiddleware, async (req, res) => {
   console.log('req.body.token: ', req.body.token);
   console.log('req.session.csrf: ', req.session.csrf);
   if (req.body.token === undefined || req.session.csrf !== req.body.token) {
-    console.log('token not valid');
+    console.log(
+      'token not valid, token in body and session token in backend are not the same'
+    );
     return res
       .status(200)
       .send({ code: 403, msg: 'Token not valid', detail: null });
@@ -67,13 +70,13 @@ router.post('/online_form', rateLimitMiddleware, async (req, res) => {
   let isFormValid = await validateFormData(formData);
 
   if (!isFormValid.valid) {
-    console.log('form not valid?');
+    console.log('form not valid?', isFormValid);
     res
       .status(200)
       .send({ code: 404, msg: 'Form not valid', detail: isFormValid.error });
   } else {
     console.log('sending mail...');
-    sendMail(formData);
+    sendMail(formData, 'creolic');
 
     res.status(200).send({ code: 200, msg: 'Form valid', details: formData });
   }

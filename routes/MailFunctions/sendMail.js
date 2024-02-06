@@ -5,23 +5,29 @@ const nodemailer = require('nodemailer'),
 const sendMail = (formDataObj, client, res) => {
   if (formDataObj === undefined || formDataObj === null) {
     console.log('no form data to validate, obj is null.');
-    return false;
+    if (res) {
+      return res.status(500).send('no form data to validate, obj is null.');
+    }
+    return;
     // obj { name: '', email: '', phone: '', message: '' }
   }
   if (!client) {
     console.log('no client name, client string is null.');
-    return false;
+    if (res) {
+      res.status(500).send('no client name, client string is null.');
+    }
+    return;
   }
   if (!ClientsList[client]) {
     console.log(
       `No client name found in clientList.js dictionary. Keyword search was: '${client}', but no data found in dictionary.`
     );
-    return false;
+    if (res) {
+      return res.status(500).send('no client name in dictionary');
+    }
+    return;
   }
-  console.log('tu sam');
-  console.log('Clients', ClientsList);
-  console.log(ClientsList[client].mailSettings.intro);
-  res.status(200).send('ok');
+
   const {
       mailSettings,
       name: CompanyName,
@@ -38,16 +44,27 @@ const sendMail = (formDataObj, client, res) => {
       outroMailMessage,
       subject: emailSubject,
     } = mailSettings;
-  console.log(ddd);
-  return;
 
   let { name, email, phone, message } = formDataObj;
-  name = name.trim();
-  email = email.trim();
-  message = message.trim();
+  try {
+    name = name.trim();
+    email = email.trim();
+    message = message.trim();
+  } catch (error) {
+    console.log('no form data');
+    if (res) {
+      return res
+        .status(500)
+        .send('form data exists, but something is undefined.');
+    }
+    return;
+  }
 
   if (name.length === 0 || email.length === 0 || message.length === 0) {
     console.log('no form data');
+    if (res) {
+      return res.status(500).send('no form data.');
+    }
     return;
   }
 
@@ -55,43 +72,33 @@ const sendMail = (formDataObj, client, res) => {
 
   try {
     const transporter = nodemailer.createTransport({
-      host: process.env.CREOLIC_MAIL_HOST,
-      port: process.env.CREOLIC_MAIL_PORT,
+      host: emailHost,
+      port: emailPort,
       auth: {
-        user: process.env.CREOLIC_MAIL_USER,
-        pass: process.env.CREOLIC_MAIL_PSW,
+        user: emailUsername,
+        pass: emailPsw,
       },
     });
     // generate email body using Mailgen
     const MailGenerator = new Mailgen({
       theme: 'default',
       product: {
-        name: 'Creolic',
-        link: process.env.CREOLIC_FRONTEND_DNS_ENDPOINT,
+        name: CompanyName,
+        link: CompanyWebsite,
       },
     });
     const emailStructure = {
       body: {
         name: name,
-        intro: [
-          'Thank you once again for choosing Creolic for your IT needs.',
-          'Please be assured that your request is important to us, and we will be working diligently to address your IT concerns promptly. If you have any additional details or specific preferences, feel free to let us know so that we can tailor our services to meet your expectations.',
-          'We look forward to serving you and contributing to the success of your business.',
-
-          'Request details:',
-          '---',
-        ],
+        intro: introMailMessage,
         // gathered information from form
         dictionary: {
           name: name,
           email: email,
-          phone: `+${phone}`,
+          phone: phone === undefined ? `-` : `+${phone}`,
           message: message,
         },
-        outro: [
-          '---',
-          'We commit to providing a response within one business day.',
-        ],
+        outro: outroMailMessage,
       },
     };
 
@@ -99,18 +106,22 @@ const sendMail = (formDataObj, client, res) => {
     // send mail with defined transport object
     const mailOptions = {
       from: email, // use email from form
-      to: 'no-reply@creolic.com', // to creolic or to nhfm
-      subject: 'Creolic Online inquiry', // subject
+      to: CompanyEmail1, // to creolic or to nhfm
+      subject: emailSubject, // subject
       html: emailBody,
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        console.log(error);
-        res.status(500).send('Error sending email');
+        console.log('err in transporter send mail:', error);
+        if (res) {
+          res.status(500).send('Error sending email');
+        }
       } else {
         console.log('Email sent: ' + info.response);
-        res.send('Email sent successfully');
+        if (res) {
+          res.send('Email sent successfully');
+        }
       }
     });
   } catch (error) {

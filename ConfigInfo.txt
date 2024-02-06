@@ -1,0 +1,57 @@
+SSL Problems
+
+- i'm trying to use self signed certificate - encountered lot of problems.
+
+- Without SSL, config should be as fallows:
+
+app.listen(port, () => {
+console.log(`Listening on http on port ${port}`);
+});
+
+
+- With SSL, config should be as fallows:
+  https
+    .createServer(
+      {
+        // rejectUnathorized: false // uncomment if using axios in node.js and self signed cert
+        key: fs.readFileSync('./key.pem'),
+        cert: fs.readFileSync('./cert.pem'),
+        passphrase: '1234',
+      },
+      app
+    )
+    .listen(port, () => {
+      console.log(`Listening on Secure http (https) on port ${port}`);
+    });
+
+Cookies
+Without SSL Config
+
+app.use(
+expressSession({
+secret: '', // a secret string used to sign the session ID cookie
+resave: false, // don't save session if unmodified
+saveUninitialized: false, // don't create session until something stored
+name: 'creolic_session',
+cookie: {
+secure: false,
+path: '/',
+sameSite: 'none',
+httpOnly: true,
+maxAge: 24 _ 60 _ 60 _ 1000, // 24hours
+// maxAge: 3000, // 3 seconds
+// maxAge: 24 _ 60 _ 60 _ 1000 \* 7, // 7 days
+secret: '',
+},
+})
+);"
+
+This works for firefox, but cookie is not saved in chrome.
+For chrome, trying this:
+
+
+
+more here:
+https://stackoverflow.com/questions/7346919/chrome-localhost-cookie-not-being-set
+//
+https://stackoverflow.com/questions/64627649/express-session-is-not-setting-cookies-in-browser
