@@ -24,6 +24,7 @@ node_modules/
 .env.node.dev
 .env.node.prod
 .node.dev.env
+.env.development
 
 npm-debug.log*
 yarn-debug.log*

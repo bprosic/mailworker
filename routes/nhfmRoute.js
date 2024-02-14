@@ -27,6 +27,7 @@ router.post('/send_mail', async (req, res) => {
 });
 
 router.post('/online_form', async (req, res) => {
+  console.log('Entered route /nhfm/online_form');
   let formData = req.body; // { name: '', email: '', phone: '', message: '' }
 
   if (req.body.token === undefined || req.session.csrf !== req.body.token) {
@@ -44,9 +45,7 @@ router.post('/online_form', async (req, res) => {
       .status(200)
       .send({ code: 404, msg: 'Form not valid', detail: isFormValid.error });
   } else {
-    sendMail(formData);
-
-    res.status(200).send({ code: 200, msg: 'Form valid', details: formData });
+    sendMail(formData, 'nhfm', res);
   }
 });
 

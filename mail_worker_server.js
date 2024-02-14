@@ -4,15 +4,20 @@ const express = require('express'),
   cors = require('cors'),
   cookieParser = require('cookie-parser'), // this is for CSRF
   bodyParser = require('body-parser'),
-  CREOLIC_FRONTEND_DNS_ENDPOINT = process.env.CREOLIC_FRONTEND_DNS_ENDPOINT,
-  CREOLIC_FRONTEND_LOCAL_ENDPOINT = process.env.CREOLIC_FRONTEND_LOCAL_ENDPOINT,
-  CREOLIC_FRONTEND_IP_ENDPOINT = process.env.CREOLIC_FRONTEND_IP_ENDPOINT,
-  CREOLIC_FRONTEND_IP_ENDPOINT2 = process.env.CREOLIC_FRONTEND_IP_ENDPOINT2,
-  CREOLIC_BACKEND_LOCAL_ENDPOINT_1 =
-    process.env.CREOLIC_BACKEND_LOCAL_ENDPOINT_1,
-  CREOLIC_BACKEND_0_ENDPOINT_2 = process.env.CREOLIC_BACKEND_LOCAL_ENDPOINT_2,
-  CREOLIC_BACKEND_DNS_ENDPOINT_3 = process.env.CREOLIC_BACKEND_LOCAL_ENDPOINT_3,
-  CREOLIC_BACKEND_IP_ENDPOINT_4 = process.env.CREOLIC_BACKEND_LOCAL_ENDPOINT_4,
+  FRONTEND_ENDPOINTS = process.env.FRONTEND_ENDPOINTS,
+  BACKEND_ENDPOINTS = process.env.BACKEND_ENDPOINTS,
+  BACKEND_USING_SSL = process.env.BACKEND_USING_SSL == 1,
+  FRONTEND_USING_SSL = process.env.FRONTEND_USING_SSL == 1,
+  FRONTEND_ENDPOINTS_ARR = FRONTEND_ENDPOINTS
+    ? FRONTEND_ENDPOINTS.split(';').map((x) => {
+        return FRONTEND_USING_SSL ? `https://${x}` : `http://${x}`;
+      })
+    : '',
+  BACKEND_ENDPOINTS_ARR = BACKEND_ENDPOINTS
+    ? BACKEND_ENDPOINTS.split(';').map((x) => {
+        return BACKEND_USING_SSL ? `https://${x}` : `http://${x}`;
+      })
+    : '',
   routes = require('./routes'),
   path = require('path'),
   https = require('https'),
@@ -49,8 +54,8 @@ app.use(
     saveUninitialized: false, // don't create session until something stored
     name: 'creolic_session',
     cookie: {
-      secure: false, // change this to true if using https - Locally, if you set to true and use http - it will throw error. Also, cookie in Chrome will not be saved
-      // and in firefox will be saved (this applies only on local development)
+      secure: BACKEND_USING_SSL, // change this to true if using https - Locally, if you set to true and use http - it will throw error.
+      // Also, cookie in Chrome will not be saved and in firefox will be saved (this applies only on local development)
       // In production, you must always use HTTPS, and always enable the secure flag which stops the cookie from working over HTTP.
       path: '/',
       sameSite: 'lax', // When you are using a single domain for your pages and server, you should set SameSite to lax or strict
@@ -86,16 +91,7 @@ app.use(function (req, res, next) {
   next();
 });
 
-const allowedOrigins = [
-  `${CREOLIC_FRONTEND_DNS_ENDPOINT}`, // frontend prosic.th-deg.de
-  `${CREOLIC_FRONTEND_LOCAL_ENDPOINT}`, // frontend localhost
-  `${CREOLIC_FRONTEND_IP_ENDPOINT}`, // frontend 0.0.0.0
-  `${CREOLIC_FRONTEND_IP_ENDPOINT2}`, // frontend 192.168.162.184
-  `${CREOLIC_BACKEND_LOCAL_ENDPOINT_1}`, // backend 1 - delete this in production
-  `${CREOLIC_BACKEND_0_ENDPOINT_2}`, // backend 2 - delete this in production
-  `${CREOLIC_BACKEND_DNS_ENDPOINT_3}`, // backend 3 - use this for production
-  `${CREOLIC_BACKEND_IP_ENDPOINT_4}`, // backend 4 - use this for production?
-]; // you have to include both server and client
+const allowedOrigins = FRONTEND_ENDPOINTS_ARR.concat(BACKEND_ENDPOINTS_ARR); // you have to include both server and client
 
 const corsOptions = {
   origin: (origin, cb) => {
@@ -122,7 +118,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 
-if (process.env.USE_SSL === 1) {
+if (BACKEND_USING_SSL) {
   https
     .createServer(
       {
@@ -133,7 +129,7 @@ if (process.env.USE_SSL === 1) {
       app
     )
     .listen(port, () => {
-      console.log(`Listening on Secure http (https) on port ${port}`);
+      console.log(`Using SSL - listening on https on port ${port}`);
     });
 } else {
   app.listen(port, () => {
