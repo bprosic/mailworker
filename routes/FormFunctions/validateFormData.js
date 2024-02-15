@@ -41,7 +41,7 @@ const validateFormData = async (obj) => {
   message = message.trim();
 
   if (name.length === 0 || email.length === 0 || message.length === 0) {
-    return { valid: false, error: 'Name/email/message length is zero.' };
+    return { valid: false, error: 'Name, Email or Message is empty.' };
   }
   // check if email valid
   let isMailValid = await validate({
@@ -54,7 +54,7 @@ const validateFormData = async (obj) => {
   });
 
   if (!isMailValid.valid) {
-    return { valid: false, error: 'Email not valid.' };
+    return { valid: false, error: `E-Mail is invalid, entered was: ${email}` };
   }
 
   // if everything was alright, then return true

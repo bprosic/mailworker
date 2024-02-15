@@ -27,22 +27,32 @@ const sendMail = (formDataObj, client, res) => {
     }
     return;
   }
-
+  console.log('Client:', ClientsList[client]);
   const {
       mail,
       name: CompanyName,
       websiteUrl: CompanyWebsite,
-      emailFrom: CompanyEmail1,
+      companyEmail: CompanyEmail1,
     } = ClientsList[client],
-    { server, content } = mail,
+    { server, contentForClient, contentForOwner } = mail,
     {
       host: emailHost,
       port: emailPort,
       username: emailUsername,
       psw: emailPsw,
       api: emailApi,
+      inProduction: inProductionUse,
     } = server,
-    { intro, outro, subject } = content;
+    {
+      intro: introClient,
+      outro: outroClient,
+      subject: subjectClient,
+    } = contentForClient,
+    {
+      intro: introOwner,
+      outro: outroOwner,
+      subject: subjectOwner,
+    } = contentForOwner;
 
   let { name, email, phone, message } = formDataObj;
   try {
@@ -54,7 +64,7 @@ const sendMail = (formDataObj, client, res) => {
     if (res) {
       return res
         .status(500)
-        .send('form data exists, but something is undefined.');
+        .send('form data exists, but some of info are missing.');
     }
     return;
   }
@@ -69,8 +79,57 @@ const sendMail = (formDataObj, client, res) => {
 
   // https://www.freecodecamp.org/news/use-nodemailer-to-send-emails-from-your-node-js-server/
 
-  if (process.env.MAIL_USING_API == 1) {
+  // generate email body using Mailgen
+  const MailGenerator = new Mailgen({
+    theme: 'default',
+    product: {
+      name: CompanyName,
+      link: CompanyWebsite,
+    },
+  });
+  const emailForOwner = {
+    body: {
+      name: 'Pavle',
+      intro: introOwner,
+      // gathered information from form
+      dictionary: {
+        'Kunde Name': name,
+        'Kunde Email': email,
+        'Kunde Phone':
+          phone === undefined || phone.length == 0
+            ? `KUNDE HAT NICHT EINGEGEBEN`
+            : `+${phone}`,
+        Nachricht: message,
+      },
+      signature: false,
+      outro: outroOwner,
+    },
+  };
+
+  const emailBodyOwner = MailGenerator.generate(emailForOwner);
+  // send mail with defined transport object
+  const mailOptions = {
+    to: 'uzar.pavle@gmail.com', // to creolic or to nhfm owner
+    from: inProductionUse == 1 ? CompanyEmail1 : email, // use email from form
+    subject: subjectClient, // subject
+    html: emailBodyOwner,
+  };
+
+  if (inProductionUse == 1) {
     // web api - used in production
+    // console.log('using api in production');
+    // console.log('api:', emailApi);
+    const sgMail = require('@sendgrid/mail');
+    sgMail.setApiKey(emailApi);
+
+    sgMail
+      .send(mailOptions)
+      .then(() => {
+        console.log('Email sent');
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   } else {
     // smtp - using in development
 
@@ -83,37 +142,6 @@ const sendMail = (formDataObj, client, res) => {
           pass: emailPsw,
         },
       });
-      // generate email body using Mailgen
-      const MailGenerator = new Mailgen({
-        theme: 'default',
-        product: {
-          name: CompanyName,
-          link: CompanyWebsite,
-        },
-      });
-      const emailStructure = {
-        body: {
-          name: name,
-          intro: intro,
-          // gathered information from form
-          dictionary: {
-            name: name,
-            email: email,
-            phone: phone === undefined ? `-` : `+${phone}`,
-            message: message,
-          },
-          outro: outro,
-        },
-      };
-
-      const emailBody = MailGenerator.generate(emailStructure);
-      // send mail with defined transport object
-      const mailOptions = {
-        from: email, // use email from form
-        to: CompanyEmail1, // to creolic or to nhfm
-        subject: subject, // subject
-        html: emailBody,
-      };
 
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
@@ -122,12 +150,12 @@ const sendMail = (formDataObj, client, res) => {
             res.status(500).send('Error sending email');
           }
         } else {
-          console.log('Email sent: ' + info.response);
+          // console.log('Email sent: ' + info.response);
+          // console.log('res.status', res.status);
+          // console.log('res.status', res.status);
           if (res) {
-            res
-              .status(200)
-              .send({ code: 200, msg: 'Form valid', details: formData });
-          }
+            res.send({ code: 200, msg: 'Form valid', details: formData });
+          } else return true;
         }
       });
     } catch (error) {

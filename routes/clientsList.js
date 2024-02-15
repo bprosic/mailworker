@@ -2,17 +2,17 @@ module.exports = {
   creolic: {
     name: 'Creolic',
     websiteUrl: 'https://www.creolic.com',
-    emailFrom: 'no-reply@creolic.com',
-    emailReply: 'no-reply@creolic.com',
+    companyEmail: 'no-reply@creolic.com', // this will be email where is sending to owner
     mail: {
       server:
-        process.env.MAIL_USING_API == 1
-          ? { api: process.env.MAIL_API }
+        process.env.CREOLIC_MAIL_USING_API == 1
+          ? { api: process.env.CREOLIC_MAIL_API, inProduction: true }
           : {
-              host: process.env.MAIL_HOST,
-              port: process.env.MAIL_PORT,
-              username: process.env.MAIL_USER,
-              psw: process.env.MAIL_PSW,
+              host: process.env.CREOLIC_MAIL_HOST,
+              port: process.env.CREOLIC_MAIL_PORT,
+              username: process.env.CREOLIC_MAIL_USER,
+              psw: process.env.CREOLIC_MAIL_PSW,
+              inProduction: false,
             },
       content: {
         intro: [
@@ -34,24 +34,34 @@ module.exports = {
   nhfm: {
     name: 'New House Facility Management',
     websiteUrl: 'https://www.newhouse-facility.com',
-    emailFrom: 'no-reply@newhouse-facility.com',
+    companyEmail: 'boris.prosic@gmail.com', // this email should be the same in sendgrid
     mail: {
       server:
-        process.env.MAIL_USING_API == 1
-          ? { api: process.env.MAIL_API }
+        process.env.NHFM_MAIL_USING_API == 1
+          ? { api: process.env.NHFM_MAIL_API, inProduction: true }
           : {
-              host: process.env.MAIL_HOST,
-              port: process.env.MAIL_PORT,
-              username: process.env.MAIL_USER,
-              psw: process.env.MAIL_PSW,
+              host: process.env.NHFM_MAIL_HOST,
+              port: process.env.NHFM_MAIL_PORT,
+              username: process.env.NHFM_MAIL_USER,
+              psw: process.env.NHFM_MAIL_PSW,
+              inProduction: false,
             },
-      content: {
+      contentForClient: {
+        intro: ['Danke Kunde ...', 'Nachricht details:', '___'],
+        outro: ['___', 'Nachricht ende.'],
+        subject: 'not defined',
+      },
+      contentForOwner: {
         intro: [
-          'Hallo, Sie haben eine Nachricht von Website Online Form erhalten.',
-          'Nachricht details, start:',
-          '---',
+          'ein Kunde hat über das Online-Formular der Website eine Nachricht gesendet.',
+          'Nachricht details:',
+          '___',
         ],
-        outro: ['---', 'Nachricht ende.'],
+        outro: [
+          '___',
+          'Nachricht ende.',
+          'Um dem Kunden weiterzuhelfen, klicken Sie einfach auf die E-Mail des Kunden.',
+        ],
         subject: 'Nachricht von newhouse-facility.com Online Form',
       },
     },

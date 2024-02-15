@@ -41,12 +41,20 @@ router.post('/online_form', async (req, res) => {
   let isFormValid = await validateFormData(formData);
 
   if (!isFormValid.valid) {
-    res
-      .status(200)
-      .send({ code: 404, msg: 'Form not valid', detail: isFormValid.error });
-  } else {
-    sendMail(formData, 'nhfm', res);
+    res.status(200).send({
+      code: 404,
+      msg: 'Form invalid, not all information were true.',
+      detail: isFormValid.error,
+    });
   }
+
+  // google captcha
+  // const verificationUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.GOOGLE_SECRET_KEY}&response=${googleRecaptchaToken}`;
+  return;
+  // dont want to wait if form was really ok or not or if error is thrown
+  sendMail(formData, 'nhfm');
+
+  res.status(200).send({ code: 200, msg: 'Form valid', details: formData });
 });
 
 module.exports = router;
