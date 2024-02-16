@@ -8,23 +8,42 @@ const express = require('express'),
   BACKEND_ENDPOINTS = process.env.BACKEND_ENDPOINTS,
   BACKEND_USING_SSL = process.env.BACKEND_USING_SSL == 1,
   FRONTEND_USING_SSL = process.env.FRONTEND_USING_SSL == 1,
+  // FRONTEND_ENDPOINTS_ARR = FRONTEND_ENDPOINTS
+  //   ? FRONTEND_ENDPOINTS.split(';').map((x) => {
+  //       return FRONTEND_USING_SSL ? `https://${x}` : `http://${x}`;
+  //     })
+  //   : '',
+  // BACKEND_ENDPOINTS_ARR = BACKEND_ENDPOINTS
+  //   ? BACKEND_ENDPOINTS.split(';').map((x) => {
+  //       return BACKEND_USING_SSL ? `https://${x}` : `http://${x}`;
+  //     })
+  //   : '',
   FRONTEND_ENDPOINTS_ARR = FRONTEND_ENDPOINTS
     ? FRONTEND_ENDPOINTS.split(';').map((x) => {
         return FRONTEND_USING_SSL ? `https://${x}` : `http://${x}`;
       })
     : '',
-  BACKEND_ENDPOINTS_ARR = BACKEND_ENDPOINTS
-    ? BACKEND_ENDPOINTS.split(';').map((x) => {
-        return BACKEND_USING_SSL ? `https://${x}` : `http://${x}`;
-      })
-    : '',
+  BACKEND_ENDPOINTS_ARR = BACKEND_ENDPOINTS ? BACKEND_ENDPOINTS.split(';') : '',
   routes = require('./routes'),
   path = require('path'),
   https = require('https'),
   fs = require('fs'),
   helmet = require('helmet'),
   compression = require('compression'),
-  expressSession = require('express-session'); // for csrf
+  expressSession = require('express-session'), // for cs
+  log4js = require('log4js');
+
+log4js.configure({
+  appenders: {
+    server: { type: 'file', filename: 'mail_worker_server.log' },
+    consoleLogs: { type: 'console' },
+  },
+  categories: {
+    justConsole: { appenders: ['consoleLogs'], level: 'info' },
+    default: { appenders: ['server', 'consoleLogs'], level: 'info' },
+  },
+});
+const log = log4js.getLogger('mail_worker_server');
 
 app.use(compression());
 app.use(helmet());
@@ -86,12 +105,14 @@ app.use(cookieParser()); // csrf
 
 // #9
 app.use(function (req, res, next) {
-  // then cors origin would be localhost:3015 (not https://localhost:3015)
   req.headers.origin = req.headers.origin || req.headers.host;
   next();
+  // then cors origin would be localhost:3015 (not https://localhost:3015)
 });
 
 const allowedOrigins = FRONTEND_ENDPOINTS_ARR.concat(BACKEND_ENDPOINTS_ARR); // you have to include both server and client
+// console.log(BACKEND_ENDPOINTS_ARR);
+// console.log(BACKEND_ENDPOINTS_ARR.indexOf('prosic.th-deg.de:3015')); // this will not find index as it is missing http or https
 
 const corsOptions = {
   origin: (origin, cb) => {
@@ -102,8 +123,9 @@ const corsOptions = {
     if (allowedOrigins.indexOf(origin) !== -1) {
       cb(null, true);
     } else {
-      console.log('Not allowed next origin: ', origin);
-      cb(new Error('Get back! Not allowed by CORS.'));
+      log.error(`Origin ${origin} is not allowed!`);
+      // cb(new Error('Get back! Not allowed by CORS.'));
+      cb(null, false);
     }
   },
   methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH'],
@@ -117,6 +139,10 @@ app.use(express.json({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
+
+app.get('*', (req, res) => {
+  res.status(404).send('Page not found');
+});
 
 if (BACKEND_USING_SSL) {
   https

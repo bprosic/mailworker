@@ -1,10 +1,12 @@
 const nodemailer = require('nodemailer'),
   Mailgen = require('mailgen'),
-  ClientsList = require('../clientsList');
+  ClientsList = require('../clientsList'),
+  log4js = require('log4js'),
+  log = log4js.getLogger('sendMail.js');
 
 const sendMail = (formDataObj, client, res) => {
   if (formDataObj === undefined || formDataObj === null) {
-    console.log('no form data to validate, obj is null.');
+    // console.log('no form data to validate, obj is null.');
     if (res) {
       return res.status(500).send('no form data to validate, obj is null.');
     }
@@ -12,22 +14,22 @@ const sendMail = (formDataObj, client, res) => {
     // obj { name: '', email: '', phone: '', message: '' }
   }
   if (!client) {
-    console.log('no client name, client string is null.');
+    // console.log('no client name, client string is null.');
     if (res) {
       res.status(500).send('no client name, client string is null.');
     }
     return;
   }
   if (!ClientsList[client]) {
-    console.log(
-      `No client name found in clientList.js dictionary. Keyword search was: '${client}', but no data found in dictionary.`
-    );
+    // console.log(
+    //   `No client name found in clientList.js dictionary. Keyword search was: '${client}', but no data found in dictionary.`
+    // );
     if (res) {
       return res.status(500).send('no client name in dictionary');
     }
     return;
   }
-  console.log('Client:', ClientsList[client]);
+  // console.log('Client:', ClientsList[client]);
   const {
       mail,
       name: CompanyName,
@@ -60,7 +62,7 @@ const sendMail = (formDataObj, client, res) => {
     email = email.trim();
     message = message.trim();
   } catch (error) {
-    console.log('no form data');
+    // console.log('no form data');
     if (res) {
       return res
         .status(500)
@@ -70,7 +72,7 @@ const sendMail = (formDataObj, client, res) => {
   }
 
   if (name.length === 0 || email.length === 0 || message.length === 0) {
-    console.log('no form data');
+    // console.log('no form data');
     if (res) {
       return res.status(500).send('no form data.');
     }
@@ -97,7 +99,7 @@ const sendMail = (formDataObj, client, res) => {
         'Kunde Email': email,
         'Kunde Phone':
           phone === undefined || phone.length == 0
-            ? `KUNDE HAT NICHT EINGEGEBEN`
+            ? `KUNDE HAT NICHT EINGETRAGEN`
             : `+${phone}`,
         Nachricht: message,
       },
@@ -109,9 +111,9 @@ const sendMail = (formDataObj, client, res) => {
   const emailBodyOwner = MailGenerator.generate(emailForOwner);
   // send mail with defined transport object
   const mailOptions = {
-    to: 'uzar.pavle@gmail.com', // to creolic or to nhfm owner
+    to: 'boris.prosic@gmail.com', // to creolic or to nhfm owner
     from: inProductionUse == 1 ? CompanyEmail1 : email, // use email from form
-    subject: subjectClient, // subject
+    subject: subjectOwner,
     html: emailBodyOwner,
   };
 
@@ -125,10 +127,11 @@ const sendMail = (formDataObj, client, res) => {
     sgMail
       .send(mailOptions)
       .then(() => {
-        console.log('Email sent');
+        // console.log('Email sent');
       })
       .catch((error) => {
-        console.error(error);
+        log.error('Error in sgMail while sending Email - error:');
+        log.error(error);
       });
   } else {
     // smtp - using in development
@@ -145,7 +148,7 @@ const sendMail = (formDataObj, client, res) => {
 
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-          console.log('err in transporter send mail:', error);
+          // console.log('err in transporter send mail:', error);
           if (res) {
             res.status(500).send('Error sending email');
           }
@@ -159,7 +162,7 @@ const sendMail = (formDataObj, client, res) => {
         }
       });
     } catch (error) {
-      console.log(
+      log.error(
         'Error in send mail function, in big try...catch, error:',
         error
       );

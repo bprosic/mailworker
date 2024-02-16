@@ -1,0 +1,8 @@
+Create a file called
+stop_service
+and some routes will be blocked!
+This is for
+security measure,
+development,
+upgrades
+etc ...

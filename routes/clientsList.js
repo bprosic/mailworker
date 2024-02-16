@@ -49,7 +49,8 @@ module.exports = {
       contentForClient: {
         intro: ['Danke Kunde ...', 'Nachricht details:', '___'],
         outro: ['___', 'Nachricht ende.'],
-        subject: 'not defined',
+        subject:
+          'Online-Form Nachricht confirmation von Website newhouse-facility.com',
       },
       contentForOwner: {
         intro: [
@@ -62,7 +63,7 @@ module.exports = {
           'Nachricht ende.',
           'Um dem Kunden weiterzuhelfen, klicken Sie einfach auf die E-Mail des Kunden.',
         ],
-        subject: 'Nachricht von newhouse-facility.com Online Form',
+        subject: 'Online-Form Nachricht von Website newhouse-facility.com',
       },
     },
   },

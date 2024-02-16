@@ -1,5 +1,8 @@
 const emailValidator = require('deep-email-validator'),
-  { validate } = emailValidator;
+  { validate } = emailValidator,
+  log4js = require('log4js'),
+  log = log4js.getLogger('validateFormData.js'),
+  axios = require('axios');
 
 function arraysEqual(a, b) {
   if (a === b) return true;
@@ -19,21 +22,25 @@ function arraysEqual(a, b) {
 
 const validateFormData = async (obj) => {
   if (obj === undefined || obj === null) {
-    console.log('no form data to validate, obj is null.');
+    log.error('No form data to validate, obj is null.');
     return false;
   }
   // obj { name: '', email: '', phone: '', message: '' }
   let keys = Object.keys(obj).sort((a, b) => a.localeCompare(b)); // lets say BOT has added another form field like url
   // then we should check that
   if (keys.length != 4) {
-    return { valid: false, error: 'Field number count wrong.' };
+    let msg = 'Field number count wrong.';
+    log.error(msg);
+    return { valid: false, error: msg };
   }
   // also are names really
   let allowedKeys = ['name', 'email', 'phone', 'message'].sort((a, b) =>
     a.localeCompare(b)
   );
   if (!arraysEqual(keys, allowedKeys)) {
-    return { valid: false, error: 'Array keys not valid.' };
+    let msg = 'Array keys not valid.';
+    log.error(msg);
+    return { valid: false, error: msg };
   }
   let { name, email, phone, message } = obj;
   name = name.trim();
@@ -41,7 +48,9 @@ const validateFormData = async (obj) => {
   message = message.trim();
 
   if (name.length === 0 || email.length === 0 || message.length === 0) {
-    return { valid: false, error: 'Name, Email or Message is empty.' };
+    let msg = 'Name, Email or Message is empty.';
+    log.error(msg);
+    return { valid: false, error: msg };
   }
   // check if email valid
   let isMailValid = await validate({
@@ -54,7 +63,9 @@ const validateFormData = async (obj) => {
   });
 
   if (!isMailValid.valid) {
-    return { valid: false, error: `E-Mail is invalid, entered was: ${email}` };
+    let msg = `E-Mail is invalid, entered was: ${email}`;
+    log.error(msg);
+    return { valid: false, error: msg };
   }
 
   // if everything was alright, then return true

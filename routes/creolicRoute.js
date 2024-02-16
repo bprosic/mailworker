@@ -1,6 +1,6 @@
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 const express = require('express'),
   router = express.Router(),
+  BlockRouteMiddleware = require('../middlewares/BlockRoute'),
   { validateFormData } = require('./FormFunctions/validateFormData'),
   { randomBytes } = require('crypto'),
   MailFunctions = require('./MailFunctions/sendMail'),
@@ -12,22 +12,22 @@ router.get('/is_server_online', (req, res) => {
   res.status(200).send({ code: 200, msg: 'ok' });
 });
 
-router.post('/check_status', (req, res) => {
+router.post('/check_status', BlockRouteMiddleware, (req, res) => {
   if (req.session.csrf === undefined) {
     req.session.csrf = randomBytes(100).toString('base64');
 
-    console.log('no csrf token, adding: ', req.session.csrf);
+    // console.log('no csrf token, adding: ', req.session.csrf);
     res.cookie('csrfToken', req.session.csrf);
     // watch out, if using mobile phone, then this req.session will not be saved into session variable
     // it is because of http protocol
   }
-  console.log('there is session csrf token, ', req.session.csrf);
+  // console.log('there is session csrf token, ', req.session.csrf);
   res.status(200).send({ code: 200, msg: { csrf: req.session.csrf } });
 });
 
 router.get('/session_destroy', (req, res) => {
   if (req.session) {
-    console.log('session destroyed');
+    // console.log('session destroyed');
     req.session.destroy();
   }
 
@@ -53,13 +53,10 @@ router.post('/test', rateLimitMiddleware, async (req, res) => {
 
 router.post('/online_form', rateLimitMiddleware, async (req, res) => {
   let formData = req.body; // { name: '', email: '', phone: '', message: '' }
-  console.log('/online-form');
-  console.log('req.body.token: ', req.body.token);
-  console.log('req.session.csrf: ', req.session.csrf);
+  // console.log('/online-form');
+  // console.log('req.body.token: ', req.body.token);
+  // console.log('req.session.csrf: ', req.session.csrf);
   if (req.body.token === undefined || req.session.csrf !== req.body.token) {
-    console.log(
-      'token not valid, token in body and session token in backend are not the same'
-    );
     return res
       .status(200)
       .send({ code: 403, msg: 'Token not valid', detail: null });
@@ -76,7 +73,7 @@ router.post('/online_form', rateLimitMiddleware, async (req, res) => {
       .send({ code: 404, msg: 'Form not valid', detail: isFormValid.error });
   } else {
     console.log('sending mail...');
-    sendMail(formData, 'creolic');
+    // sendMail(formData, 'creolic');
 
     res.status(200).send({ code: 200, msg: 'Form valid', details: formData });
   }
