@@ -481,3 +481,37 @@
 [2024-02-16T14:22:21.824] [INFO] mail_worker_server - Entered route /nhfm/online_form
 [2024-02-16T14:26:43.349] [INFO] mail_worker_server - Entered route /nhfm/online_form
 [2024-02-16T14:26:43.487] [INFO] sendMail.js - Tu sam
+[2024-02-18T20:33:00.978] [ERROR] mail_worker_server - Origin http://192.168.178.46:8000 is not allowed!
+[2024-02-18T20:33:00.998] [ERROR] mail_worker_server - Origin http://192.168.178.46:8000 is not allowed!
+[2024-02-18T20:34:07.819] [ERROR] nhfmRoute.js - Token not valid, form data:
+[2024-02-18T20:34:07.820] [ERROR] nhfmRoute.js - { name: 'boris', email: 'baba@gmx.de', phone: '', message: 'dfmem' }
+[2024-02-18T20:34:07.832] [ERROR] nhfmRoute.js - Token not valid, form data:
+[2024-02-18T20:34:07.833] [ERROR] nhfmRoute.js - { name: 'boris', email: 'baba@gmx.de', phone: '', message: 'dfmem' }
+[2024-02-18T20:36:40.916] [ERROR] nhfmRoute.js - Token not valid, form data:
+[2024-02-18T20:36:40.916] [ERROR] nhfmRoute.js - {
+  name: 'boris',
+  email: 'baba@newhouse-facility.com',
+  phone: '',
+  message: 'kreso'
+}
+[2024-02-18T20:36:40.930] [ERROR] nhfmRoute.js - Token not valid, form data:
+[2024-02-18T20:36:40.930] [ERROR] nhfmRoute.js - {
+  name: 'boris',
+  email: 'baba@newhouse-facility.com',
+  phone: '',
+  message: 'kreso'
+}
+[2024-02-18T20:38:17.300] [ERROR] mail_worker_server - Origin 192.168.178.46:3015 is not allowed!
+[2024-02-18T20:38:17.351] [ERROR] mail_worker_server - Origin 192.168.178.46:3015 is not allowed!
+[2024-02-18T20:39:13.530] [ERROR] nhfmRoute.js - Token not valid, form data:
+[2024-02-18T20:39:13.531] [ERROR] nhfmRoute.js - { name: 'boris', email: 'baba@gmx.de', phone: '', message: 'jhgjgjgh' }
+[2024-02-18T20:39:13.548] [ERROR] nhfmRoute.js - Token not valid, form data:
+[2024-02-18T20:39:13.548] [ERROR] nhfmRoute.js - { name: 'boris', email: 'baba@gmx.de', phone: '', message: 'jhgjgjgh' }
+[2024-02-18T20:42:03.651] [ERROR] mail_worker_server - Origin http://192.168.178.46:8000 is not allowed!
+[2024-02-18T20:42:03.662] [ERROR] mail_worker_server - Origin http://192.168.178.46:8000 is not allowed!
+[2024-02-18T20:43:54.693] [ERROR] nhfmRoute.js - Token not valid, form data:
+[2024-02-18T20:43:54.694] [ERROR] nhfmRoute.js - { name: 'boris', email: 'baba@gmx.de', phone: '', message: 'referfer' }
+[2024-02-18T20:43:54.711] [ERROR] nhfmRoute.js - Token not valid, form data:
+[2024-02-18T20:43:54.711] [ERROR] nhfmRoute.js - { name: 'boris', email: 'baba@gmx.de', phone: '', message: 'referfer' }
+[2024-02-18T21:38:40.472] [ERROR] mail_worker_server - Origin http://localhost:8000 is not allowed!
+[2024-02-18T21:38:40.507] [ERROR] mail_worker_server - Origin http://localhost:8000 is not allowed!

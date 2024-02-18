@@ -93,6 +93,9 @@ app.use(
 // in production use, or when hosted on heroku, uncomment next:
 // app.set('trust proxy', 1);
 
+/* */
+// https://community.fly.io/t/http-only-cookie-not-being-set-in-production-with-nextjs-django/13802
+
 app.use(
   bodyParser.urlencoded({
     extended: true,
@@ -144,21 +147,24 @@ app.get('*', (req, res) => {
   res.status(404).send('Page not found');
 });
 
-if (BACKEND_USING_SSL) {
-  https
-    .createServer(
-      {
-        key: fs.readFileSync('./key.pem'),
-        cert: fs.readFileSync('./cert.pem'),
-        passphrase: '1234',
-      },
-      app
-    )
-    .listen(port, () => {
-      console.log(`Using SSL - listening on https on port ${port}`);
-    });
-} else {
-  app.listen(port, () => {
-    console.log(`Listening on http on port ${port}`);
-  });
-}
+app.listen(port, () => {
+  console.log(`Listening on http on port ${port}`);
+});
+// if (BACKEND_USING_SSL) {
+//   https
+//     .createServer(
+//       {
+//         key: fs.readFileSync('./key.pem'),
+//         cert: fs.readFileSync('./cert.pem'),
+//         passphrase: '1234',
+//       },
+//       app
+//     )
+//     .listen(port, () => {
+//       console.log(`Using SSL - listening on https on port ${port}`);
+//     });
+// } else {
+//   app.listen(port, () => {
+//     console.log(`Listening on http on port ${port}`);
+//   });
+// }
