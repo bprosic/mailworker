@@ -69,18 +69,19 @@ app.use(helmet());
 app.use(
   expressSession({
     secret: process.env.SESSION_SECRET, // a secret string used to sign the session ID cookie
-    resave: false, // don't save session if unmodified
-    saveUninitialized: false, // don't create session until something stored
+    resave: true, // don't save session if unmodified
+    saveUninitialized: true, // don't create session until something stored
     name: 'creolic_session',
     cookie: {
       secure: BACKEND_USING_SSL, // change this to true if using https - Locally, if you set to true and use http - it will throw error.
       // Also, cookie in Chrome will not be saved and in firefox will be saved (this applies only on local development)
       // In production, you must always use HTTPS, and always enable the secure flag which stops the cookie from working over HTTP.
       path: '/',
-      sameSite: 'lax', // When you are using a single domain for your pages and server, you should set SameSite to lax or strict
+      sameSite: 'none', // When you are using a single domain for your pages and server, you should set SameSite to lax or strict
       // If you are using multiple origins, you must set it to none
       // In development - set to LAX and it will be saved also in Chrome!!! and also in Firefox
       httpOnly: true,
+      domain: '192.168.162.184',
       // You must always use this option for session cookies httpOnly. httpOnly tells the browser the cookie should not be read or writable by JavaScript on the web page,
       // which is the only protection from a class of common XSS attack.
       maxAge: 24 * 60 * 60 * 1000, // 24hours
@@ -106,36 +107,42 @@ app.use(cookieParser()); // csrf
 //https://levelup.gitconnected.com/how-to-implement-csrf-tokens-in-express-f867c9e95af0
 // set up the cookie for the session
 
-// #9
-app.use(function (req, res, next) {
-  req.headers.origin = req.headers.origin || req.headers.host;
-  next();
-  // then cors origin would be localhost:3015 (not https://localhost:3015)
-});
-
 const allowedOrigins = FRONTEND_ENDPOINTS_ARR.concat(BACKEND_ENDPOINTS_ARR); // you have to include both server and client
-// console.log(BACKEND_ENDPOINTS_ARR);
-// console.log(BACKEND_ENDPOINTS_ARR.indexOf('prosic.th-deg.de:3015')); // this will not find index as it is missing http or https
 
 const corsOptions = {
   origin: (origin, cb) => {
     /* IF using this and if you want to run route from server directly, then origin would be always undefined.
         Write the middleware above (#9)
       */
-
     if (allowedOrigins.indexOf(origin) !== -1) {
       cb(null, true);
     } else {
       log.error(`Origin ${origin} is not allowed!`);
-      // cb(new Error('Get back! Not allowed by CORS.'));
       cb(null, false);
     }
   },
+  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
   methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH'],
   credentials: true,
 };
+// intercept pre-flight check for all routes
+app.options('*', cors(corsOptions));
 
 app.use(cors(corsOptions));
+
+// #9
+app.use(function (req, res, next) {
+  res.header('Content-Type', 'application/json;charset=UTF-8');
+  res.header('Access-Control-Allow-Credentials', true);
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept'
+  );
+  req.headers.origin = req.headers.origin || req.headers.host;
+  next();
+  // then cors origin would be localhost:3015 (not https://localhost:3015)
+});
+
 // init middleware from body - to take from body parser
 app.use(express.json({ extended: false }));
 // in order to access public folder

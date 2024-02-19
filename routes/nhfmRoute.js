@@ -25,12 +25,7 @@ router.post(
   async (req, res) => {
     let formData = req.body; // { name: '', email: '', phone: '', message: '', token: '', googleToken: '' }
 
-    if (
-      req.body.token === undefined ||
-      req.session.csrf !== req.body.token ||
-      req.body.googleToken === undefined ||
-      req.body.googleToken === ''
-    ) {
+    if (req.body.googleToken === undefined || req.body.googleToken === '') {
       log.error('Token not valid, form data:');
       delete formData['token'];
       delete formData['googleToken'];
@@ -53,23 +48,9 @@ router.post(
     );
     let { data: dataFromGoogleServer } = googleResponse;
 
-    // {
-    //   data: {
-    //     success: true,
-    //     challenge_ts: '2024-02-16T12:52:02Z',
-    //     hostname: 'prosic.th-deg.de',
-    //     score: 0.9,
-    //     action: 'homepage'
-    //   }
-    // }
-
-    // log.info('googleResponse - data', dataFromGoogleServer);
     let { success, score } = dataFromGoogleServer;
-    // log.info('success', success);
-    // log.info('score', score);
     if (success) {
       delete formData['googleToken'];
-      // log.info('formData', formData);
       let isFormValid = await validateFormData(formData);
 
       if (!isFormValid.valid) {

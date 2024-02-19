@@ -13,16 +13,35 @@ router.get('/is_server_online', (req, res) => {
 });
 
 router.post('/check_status', BlockRouteMiddleware, (req, res) => {
+  console.log('usao u checkstatus');
+  const isCookieSecure = process.env.NODE_ENV === 'production';
+
   if (req.session.csrf === undefined) {
     req.session.csrf = randomBytes(100).toString('base64');
 
-    // console.log('no csrf token, adding: ', req.session.csrf);
-    res.cookie('csrfToken', req.session.csrf);
+    // res
+    //   .cookie('csrfToken', req.session.csrf, {
+    //     httpOnly: false,
+    //     secure: false,
+    //     sameSite: 'none',
+    //     domain: '.192.168.162.184',
+    //   })
+    //   .status(200);
+
     // watch out, if using mobile phone, then this req.session will not be saved into session variable
     // it is because of http protocol
   }
   // console.log('there is session csrf token, ', req.session.csrf);
-  res.status(200).send({ code: 200, msg: { csrf: req.session.csrf } });
+  return res
+    .cookie('csr', req.session.csrf, {
+      httpOnly: true, // set to false in production
+      secure: isCookieSecure, // when ssl, set to true. Without ssl, false!
+      domain: '192.168.162.184',
+    })
+    .status(200)
+    .send({ code: 200, msg: { csrf: req.session.csrf } });
+
+  // res.status(200).send({ code: 200, msg: { csrf: req.session.csrf } });
 });
 
 router.get('/session_destroy', (req, res) => {
@@ -42,8 +61,24 @@ router.post('/send_mail', async (req, res) => {
 
 router.get('/test', async (req, res) => {
   // delete this
-  const formData = req.body;
-  sendMail(formData, 'creolic', res);
+  console.log('usao u test');
+  const isCookieSecure = process.env.NODE_ENV === 'production';
+
+  if (req.session.csrf === undefined) {
+    req.session.csrf = randomBytes(100).toString('base64');
+
+    // res.
+    // watch out, if using mobile phone, then this req.session will not be saved into session variable
+    // it is because of http protocol
+    return res
+      .cookie('csrfToken2', req.session.csrf, {
+        httpOnly: isCookieSecure,
+        secure: isCookieSecure, // when ssl, set to true. Without ssl, false!
+        domain: '.192.168.162.184',
+      })
+      .status(200)
+      .send({ code: 200, msg: { csrf: req.session.csrf } });
+  }
 });
 router.post('/test', rateLimitMiddleware, async (req, res) => {
   // delete this
