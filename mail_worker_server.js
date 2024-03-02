@@ -81,7 +81,7 @@ app.use(
       // If you are using multiple origins, you must set it to none
       // In development - set to LAX and it will be saved also in Chrome!!! and also in Firefox
       httpOnly: true,
-      domain: '192.168.162.184',
+      domain: '.creolic.com',
       // You must always use this option for session cookies httpOnly. httpOnly tells the browser the cookie should not be read or writable by JavaScript on the web page,
       // which is the only protection from a class of common XSS attack.
       maxAge: 24 * 60 * 60 * 1000, // 24hours
@@ -125,23 +125,28 @@ const corsOptions = {
   methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH'],
   credentials: true,
 };
-// intercept pre-flight check for all routes
-app.options('*', cors(corsOptions));
-
-app.use(cors(corsOptions));
 
 // #9
 app.use(function (req, res, next) {
-  res.header('Content-Type', 'application/json;charset=UTF-8');
   res.header('Access-Control-Allow-Credentials', true);
+  // res.header('Content-Type', 'application/json;charset=UTF-8');
+  res.header(
+    'Access-Control-Allow-Methods',
+    'GET,PUT,POST,DELETE,UPDATE,OPTIONS'
+  );
   res.header(
     'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept'
+    'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept'
   );
   req.headers.origin = req.headers.origin || req.headers.host;
   next();
   // then cors origin would be localhost:3015 (not https://localhost:3015)
 });
+
+// intercept pre-flight check for all routes
+app.options('*', cors(corsOptions));
+
+app.use(cors(corsOptions));
 
 // init middleware from body - to take from body parser
 app.use(express.json({ extended: false }));

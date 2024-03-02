@@ -111,8 +111,11 @@ const sendMail = (formDataObj, client, res) => {
   const emailBodyOwner = MailGenerator.generate(emailForOwner);
   // send mail with defined transport object
   const mailOptions = {
-    to: 'boris.prosic@gmail.com', // to creolic or to nhfm owner
-    from: inProductionUse == 1 ? CompanyEmail1 : email, // use email from form
+    to: { email: 'uzar.pavle@gmail.com', name: 'No-Reply' }, // here will email be landed
+    from:
+      inProductionUse == 1
+        ? { email: CompanyEmail1, name: CompanyName }
+        : email, // use email from form
     subject: subjectOwner,
     html: emailBodyOwner,
   };
@@ -135,7 +138,6 @@ const sendMail = (formDataObj, client, res) => {
       });
   } else {
     // smtp - using in development
-
     try {
       const transporter = nodemailer.createTransport({
         host: emailHost,

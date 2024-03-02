@@ -26,7 +26,7 @@ router.post(
     let formData = req.body; // { name: '', email: '', phone: '', message: '', token: '', googleToken: '' }
 
     if (req.body.googleToken === undefined || req.body.googleToken === '') {
-      log.error('Token not valid, form data:');
+      log.error('Token not valid, form data without token:');
       delete formData['token'];
       delete formData['googleToken'];
       log.error(formData);
